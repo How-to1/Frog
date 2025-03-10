@@ -51,11 +51,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
+    // Load your local frog.jpg image
     const frogImg = new Image();
-    frogImg.src = 'https://i.postimg.cc/kXdzCrvn/frog.png'; // Replace with your frog image URL
+    frogImg.src = 'frog.jpg'; // Make sure frog.jpg is in the same folder as index.html
 
     const starImg = new Image();
-    starImg.src = 'https://i.postimg.cc/3x3QzSGq/star.png'; // Replace with your star image URL
+    starImg.src = 'star.png'; // You can use your own image, or keep the external one if you prefer
 
     const frog = {
       x: canvas.width / 2 - 50,
@@ -138,13 +139,12 @@
         star.y += star.speed;
 
         if (detectCollision(frog, star)) {
-          // Star goes inside mouth
           stars.splice(index, 1);
           score++;
           document.getElementById('scoreBoard').textContent = 'Score: ' + score;
-          frogJump(); // make frog jump when catching a star
+          frogJump();
         } else if (star.y > canvas.height) {
-          stars.splice(index, 1); // remove star if it goes off-screen
+          stars.splice(index, 1);
         }
       });
     }
@@ -172,8 +172,7 @@
       requestAnimationFrame(gameLoop);
     }
 
-    // Start game
-    setInterval(createStar, 1000); // every second drop a new star
+    setInterval(createStar, 1000);
     gameLoop();
   </script>
 </body>
