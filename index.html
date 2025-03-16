@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Falling Stars Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a3d62;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            background-color: #3c6382;
+            display: block;
+            margin: 0 auto;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<div id="score">Score: 0</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const frogImg = new Image();
+    frogImg.src = 'Frog.png';
+
+    const starImg = new Image();
+    starImg.src = 'Star.png';
+
+    let frog = { x: canvas.width / 2 - 30, y: canvas.height - 70, width: 60, height: 60, speed: 7, jumping: false };
+    let stars = [];
+    let score = 0;
+    let leftPressed = false;
+    let rightPressed = false;
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') leftPressed = true;
+        if (e.key === 'ArrowRight') rightPressed = true;
+    });
+
+    document.addEventListener('keyup', function(e) {
+        if (e.key === 'ArrowLeft') leftPressed = false;
+        if (e.key === 'ArrowRight') rightPressed = false;
+    });
+
+    function drawFrog() {
+        ctx.drawImage(frogImg, frog.x, frog.y, frog.width, frog.height);
+    }
+
+    function drawStar(star) {
+        ctx.drawImage(starImg, star.x, star.y, star.size, star.size);
+    }
+
+    function spawnStar() {
+        const size = 30;
+        stars.push({
+            x: Math.random() * (canvas.width - size),
+            y: -size,
+            size: size,
+            speed: Math.random() * 2 + 1
+        });
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (leftPressed && frog.x > 0) frog.x -= frog.speed;
+        if (rightPressed && frog.x < canvas.width - frog.width) frog.x += frog.speed;
+
+        drawFrog();
+
+        stars.forEach((star, index) => {
+            star.y += star.speed;
+            drawStar(star);
+
+            const closeToFrog = star.y + star.size >= frog.y && Math.abs((star.x + star.size/2) - (frog.x + frog.width/2)) < 50;
+
+            if (closeToFrog && !frog.jumping) {
+                frog.jumping = true;
+                let initialY = frog.y;
+                frog.y -= 40;
+                setTimeout(() => { frog.y = initialY; frog.jumping = false; }, 200);
+            }
+
+            if (star.y > canvas.height) {
+                stars.splice(index, 1);
+            }
+
+            if (star.x < frog.x + frog.width && star.x + star.size > frog.x &&
+                star.y < frog.y + frog.height && star.y + star.size > frog.y) {
+                stars.splice(index, 1);
+                score++;
+                document.getElementById('score').innerText = 'Score: ' + score;
+            }
+        });
+
+        requestAnimationFrame(update);
+    }
+
+    setInterval(spawnStar, 1500);
+    update();
+</script>
+
+</body>
+</html>
